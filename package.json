@@ -1,0 +1,17 @@
+{
+  "name": "shopify-store-starter-theme",
+  "version": "1.0.0",
+  "author": "mserrano-dev",
+  "scripts": {
+    "git": "node -r dotenv/config devops.js --mode=git",
+    "sync": "node -r dotenv/config devops.js --mode=sync",
+    "dev": "node -r dotenv/config devops.js --mode=dev",
+    "build": "node -r dotenv/config devops.js --mode=build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "shelljs": "^0.8.3",
+    "yargs": "^15.3.1"
+  }
+}

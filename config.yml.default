@@ -1,0 +1,7 @@
+development:
+  #password: <!--  MAKE A .env FILE  -->
+  #theme_id: <!-- see the .env.default in the repo -->
+  #store:    <!--  MAKE A .env FILE  -->
+  #directory: src
+  
+<!-- themekit will generate this file via devops.js -->
