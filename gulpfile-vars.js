@@ -1,20 +1,20 @@
-{
+module.exports = {
   "asset_folder": "src/assets",
   "scripts": {
     "filename": "_app-scripts.js",
     "source": [
-      "src/_dev/*.js"
+      // vendor
+      "./node_modules/vue/dist/vue.min.js",
+      // source
+      "src/_dev/**/*.js"
     ],
-    "vendors": [
-      "./node_modules/vue/dist/vue.min.js"
-    ]
   },
   "styles": {
     "filename": "_app-styles.css",
     "source": [
-      "src/_dev/*.scss"
+      // vendor
+      // source
+      "src/_dev/**/*.scss"
     ],
-    "vendors": [
-    ]
   }
 }

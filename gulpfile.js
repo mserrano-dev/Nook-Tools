@@ -2,7 +2,7 @@ const { src, dest, parallel } = require('gulp');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 const sass = require('gulp-sass');
-const project = require('./gulpfile-vars.json');
+const project = require('./gulpfile-vars');
 
 function css() {
   return src(project.styles.source)
