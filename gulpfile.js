@@ -1,23 +1,50 @@
-const { src, dest, parallel } = require('gulp');
+const { watch, src, dest, parallel } = require('gulp');
+const shell = require('shelljs');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
+const touch = require('gulp-touch-fd');
 const sass = require('gulp-sass');
-const project = require('./gulpfile-vars');
+const cssnano = require('gulp-cssnano');
+const sourcemaps = require('gulp-sourcemaps');
+const gulpif = require('gulp-if');
+const uglify = require('gulp-uglify');
+const argv = require('yargs').argv
+//
+const env = {
+  production: (argv.env == 'production'),
+  development: (argv.env == 'development'),
+}
+let project = null;
+update_project_vars();
+
+function update_project_vars() {
+  delete require.cache[require.resolve('./gulpfile-vars')]
+  project = require('./gulpfile-vars');
+}
 
 function css() {
-  return src(project.styles.source)
-    .pipe(sass().on('error', sass.logError))
-    // .pipe(minifyCSS())
+  update_project_vars();
+  return src(project.styles.sass_entry)
+    .pipe(gulpif(env.development, sourcemaps.init()))
+    .pipe(sass()).on('error', sass.logError)
+    .pipe(gulpif(env.development, sourcemaps.write('.')))
+    .pipe(gulpif(env.production, cssnano()))
     .pipe(rename(project.styles.filename))
     .pipe(dest(project.asset_folder))
+    .pipe(touch()); /* 
+      Gulp4 does not update mtime so we do it manually with touch.
+      ThemeKit will upload once file mtime is updated.
+    */
 }
 
 function js() {
-  return src(project.scripts.source, { sourcemaps: true })
+  update_project_vars();
+  return src(project.scripts.source, { sourcemaps: env.development })
     .pipe(concat(project.scripts.filename))
-    .pipe(dest(project.asset_folder, { sourcemaps: true }))
+    .pipe(gulpif(env.production, uglify()))
+    .pipe(dest(project.asset_folder, { sourcemaps: env.development }))
 }
 
-exports.js = js;
-exports.css = css;
+exports.js = (env.production ? js : watch(project.scripts.to_watch, js));
+exports.css = (env.production ? css : watch(project.styles.to_watch, css));
 exports.default = parallel(css, js);

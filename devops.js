@@ -1,13 +1,14 @@
 const shell = require('shelljs');
 const argv = require('yargs').argv
 //
+const project = require('./gulpfile-vars');
 const themekit_config = get_auth_flags();
 
 switch (argv.mode) {
   case 'git':
     // setup git author in the .git/config file
     if (valid_env_variables("GIT_NAME", "GIT_USER", "GIT_EMAIL") === true) {
-      shell.exec(chain_cmd(
+      shell.exec(series_cmd(
         `git config user.name "${ process.env.GIT_NAME }"`,
         `git config credential.username "${ process.env.GIT_USER }"`,
         `git config user.email "${ process.env.GIT_EMAIL }"`,
@@ -20,7 +21,7 @@ switch (argv.mode) {
   case 'sync':
     // pull what is deployed into the local environment
     if(themekit_config) {
-      shell.exec(chain_cmd(
+      shell.exec(series_cmd(
         `theme get ${ themekit_config } --dir src`,
       ));
     }
@@ -28,7 +29,8 @@ switch (argv.mode) {
   case 'dev':
     // start the dev watch process
     if(themekit_config) {
-      shell.exec(chain_cmd(
+      shell.exec(parallel_cmd(
+        `./node_modules/gulp/bin/gulp.js --env=development`,
         `theme watch ${ themekit_config } --dir src`,
       ));
     }
@@ -36,16 +38,25 @@ switch (argv.mode) {
   case 'build':
     // build a minified version and zip up the repo
     if(themekit_config) {
-      shell.exec(chain_cmd(
-        `theme get ${ themekit_config } --dir src`,
+      const project_files = [
+        `assets/${ project.scripts.filename }`,
+        `assets/${ project.styles.filename }`,
+      ];
+      shell.exec(series_cmd(
+        `./node_modules/gulp/bin/gulp.js --env=production`,
+        `theme deploy ${ project_files.join(' ') } ${ themekit_config } --dir src`,
       ));
     }
     break;
 }
 
 // -- Functions --
-function chain_cmd(...args) {
-  return args.join(';');
+function series_cmd(...args) {
+  return args.join('&&');
+}
+
+function parallel_cmd(...args) {
+  return args.join('&');
 }
 
 function get_auth_flags() {
