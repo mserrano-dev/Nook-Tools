@@ -3,11 +3,13 @@ const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 const touch = require('gulp-touch-fd');
 const sass = require('gulp-sass');
-const globImporter = require('node-sass-glob-importer');
+const sass_glob_importer = require('node-sass-glob-importer');
 const cssnano = require('gulp-cssnano');
+const autoprefixer = require('gulp-autoprefixer');
 const sourcemaps = require('gulp-sourcemaps');
 const gulpif = require('gulp-if');
 const uglify = require('gulp-uglify');
+const browserSync = require('browser-sync').create();
 const argv = require('yargs').argv;
 //
 const env = {
@@ -27,11 +29,12 @@ function css() {
   return src(project.styles.sass_entry)
     .pipe(gulpif(env.development, sourcemaps.init()))
       .pipe(sass({
-        importer: globImporter()
+        importer: sass_glob_importer()
       })).on('error', sass.logError)
       .pipe(cssnano())
       .pipe(rename(project.styles.filename))
     .pipe(gulpif(env.development, sourcemaps.write()))
+    .pipe(autoprefixer())
     .pipe(dest(project.asset_folder))
     .pipe(touch()) /* 
       Gulp4 does not update mtime so we do it manually with touch.
@@ -50,6 +53,26 @@ function js() {
     .pipe(dest(project.asset_folder, { sourcemaps: env.development }))
 }
 
+function init_browserSync() {
+  browserSync.init({
+    proxy:  `https://${ process.env.SHOPIFY_SHOP }`,
+    files: project.ThemeKit_idle_file,
+    snippetOptions: {
+      rule: {
+        match: /<\/body>/i,
+        fn: (snippet, match) => {
+          return snippet + match;
+        }
+      }
+    },
+    open: false,
+    reloadOnRestart: true,
+    notify: false,
+    ghostMode: true,
+  });
+}
+
 exports.js = (env.production ? js : watch(project.scripts.to_watch, js));
 exports.css = (env.production ? css : watch(project.styles.to_watch, css));
+if(env.development) init_browserSync();
 exports.default = parallel(css, js);

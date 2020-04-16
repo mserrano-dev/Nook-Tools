@@ -19,5 +19,6 @@ module.exports = {
     "to_watch": [
       "./src/_dev/**/*.scss"
     ],
-  }
+  },
+  "ThemeKit_idle_file": "/var/tmp/theme_ready"
 }

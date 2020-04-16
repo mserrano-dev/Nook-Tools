@@ -31,7 +31,7 @@ switch (argv.mode) {
     if(themekit_config) {
       shell.exec(parallel_cmd(
         `./node_modules/gulp/bin/gulp.js --env=development`,
-        `theme watch ${ themekit_config } --dir src`,
+        `theme watch ${ themekit_config } --dir src --notify=${ project.ThemeKit_idle_file }`,
       ));
     }
     break;
