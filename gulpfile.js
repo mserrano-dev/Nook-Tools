@@ -1,4 +1,6 @@
-const { watch, src, dest, parallel } = require('gulp');
+const { watch, src, dest, series, parallel } = require('gulp');
+const fs = require('graceful-fs');
+const archiver = require('gulp-archiver');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 const touch = require('gulp-touch-fd');
@@ -11,7 +13,8 @@ const gulpif = require('gulp-if');
 const uglify = require('gulp-uglify');
 const browserSync = require('browser-sync').create();
 const argv = require('yargs').argv;
-//
+
+// --- Setup --- //
 const env = {
   production: (argv.env == 'production'),
   development: (argv.env == 'development'),
@@ -24,6 +27,7 @@ function update_project_vars() {
   project = require('./gulpfile-vars');
 }
 
+// --- Gulp4 Tasks --- //
 function css() {
   update_project_vars();
   return src(project.styles.sass_entry)
@@ -35,7 +39,7 @@ function css() {
       .pipe(rename(project.styles.filename))
     .pipe(gulpif(env.development, sourcemaps.write()))
     .pipe(autoprefixer())
-    .pipe(dest(project.asset_folder))
+    .pipe(dest(`${ project.source_folder }/assets`))
     .pipe(touch()) /* 
       Gulp4 does not update mtime so we do it manually with touch.
       ThemeKit will upload once file mtime is updated.
@@ -50,7 +54,7 @@ function js() {
   return src(project.scripts.source, { sourcemaps: env.development })
     .pipe(concat(project.scripts.filename))
     .pipe(gulpif(env.production, uglify()))
-    .pipe(dest(project.asset_folder, { sourcemaps: env.development }))
+    .pipe(dest(`${ project.source_folder }/assets`, { sourcemaps: env.development }))
 }
 
 function init_browserSync() {
@@ -72,7 +76,38 @@ function init_browserSync() {
   });
 }
 
-exports.js = (env.production ? js : watch(project.scripts.to_watch, js));
+function create_zip_backup() {
+  let list_ignore = [`${ project.source_folder }/assets/${ project.zip_filename }`];
+  const gitignore = fs.readFileSync("./.gitignore", "utf8");
+  // dont zip any files that this repo would ignore
+  for (var filename of gitignore.split(/\r?\n/)) {
+    if(filename) {
+      list_ignore.push(`${ filename }`);
+      list_ignore.push(`${ filename }/**/*`);
+    }
+  }
+  // explicitly define which hidden files to include in the zip file
+  let contents = [
+    '**',
+    '.env.default',
+    '.gitignore',
+  ];
+  return src(contents, {ignore: list_ignore})
+    .pipe(archiver(project.zip_filename))
+    .pipe(dest(`${ project.source_folder }/assets`))
+}
+
+// --- Main --- //
+if (env.development){
+  exports.default = parallel(
+    init_browserSync,
+    parallel(css, js),
+  );
+} else if (env.production) {
+  exports.default = series(
+    parallel(css, js),
+    create_zip_backup,
+  );
+}
 exports.css = (env.production ? css : watch(project.styles.to_watch, css));
-if(env.development) init_browserSync();
-exports.default = parallel(css, js);
+exports.js = (env.production ? js : watch(project.scripts.to_watch, js));

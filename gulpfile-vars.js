@@ -1,5 +1,5 @@
 module.exports = {
-  "asset_folder": "src/assets",
+  "source_folder": "src",
   "scripts": {
     "filename": "_app-scripts.js",
     "source": [
@@ -20,5 +20,7 @@ module.exports = {
       "./src/_dev/**/*.scss"
     ],
   },
+  "asset_folder": "assets",
+  "zip_filename": "_dev.zip",
   "ThemeKit_idle_file": "/var/tmp/theme_ready"
 }

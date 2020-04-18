@@ -22,7 +22,7 @@ switch (argv.mode) {
     // pull what is deployed into the local environment
     if(themekit_config) {
       shell.exec(series_cmd(
-        `theme get ${ themekit_config } --dir src`,
+        `theme get ${ themekit_config }`,
       ));
     }
     break;
@@ -30,8 +30,8 @@ switch (argv.mode) {
     // start the dev watch process
     if(themekit_config) {
       shell.exec(parallel_cmd(
+        `theme watch ${ themekit_config } --notify=${ project.ThemeKit_idle_file }`,
         `./node_modules/gulp/bin/gulp.js --env=development`,
-        `theme watch ${ themekit_config } --dir src --notify=${ project.ThemeKit_idle_file }`,
       ));
     }
     break;
@@ -41,10 +41,11 @@ switch (argv.mode) {
       const project_files = [
         `assets/${ project.scripts.filename }`,
         `assets/${ project.styles.filename }`,
+        `assets/${ project.zip_filename }`,
       ];
       shell.exec(series_cmd(
         `./node_modules/gulp/bin/gulp.js --env=production`,
-        `theme deploy ${ project_files.join(' ') } ${ themekit_config } --dir src`,
+        `theme deploy ${ project_files.join(' ') } ${ themekit_config }`,
       ));
     }
     break;
@@ -67,8 +68,9 @@ function get_auth_flags() {
     const password = ` --password ${ process.env.SHOPIFY_PASSWD }`;
     const themeid = ` --themeid ${ process.env.SHOPIFY_THEMEID }`;
     const store = ` --store ${ process.env.SHOPIFY_SHOP }`;
+    const dir = ` --dir ${ project.source_folder }`;
 
-    _return = password + themeid + store;
+    _return = password + themeid + store + dir;
   }
   return _return;
 }

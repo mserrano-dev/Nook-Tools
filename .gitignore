@@ -1,6 +1,7 @@
 .env
 config.yml
 node_modules
+src/assets/_dev.zip
 
 .vscode
 .DS_Store
