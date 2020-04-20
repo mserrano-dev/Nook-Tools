@@ -1,7 +1,7 @@
 const shell = require('shelljs');
 const argv = require('yargs').argv
 //
-const project = require('./gulpfile-vars');
+const project = require('./project-settings');
 const themekit_config = get_auth_flags();
 
 switch (argv.mode) {
