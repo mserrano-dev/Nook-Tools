@@ -9,6 +9,7 @@ const env = {
 
 module.exports = {
   watch: env.development,
+  devtool: (env.development ? 'inline-source-map' : ''),
   module: {
     rules: [
       {

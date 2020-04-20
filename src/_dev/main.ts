@@ -9,3 +9,5 @@ for (var num of test) {
 }
 let home = new Home();
 home.init();
+
+console.log(square(26));
