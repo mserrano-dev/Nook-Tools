@@ -1,4 +1,5 @@
 const { watch, src, dest, series, parallel } = require('gulp');
+const webpack = require('webpack-stream');
 const fs = require('graceful-fs');
 const archiver = require('gulp-archiver');
 const concat = require('gulp-concat');
@@ -28,9 +29,9 @@ function update_project_vars() {
 }
 
 // --- Gulp4 Tasks --- //
-function css() {
-  update_project_vars();
-  return src(project.styles.sass_entry)
+function css(done) {
+  update_project_vars(); done();
+  return src(project.styles.entry)
     .pipe(gulpif(env.development, sourcemaps.init()))
       .pipe(sass({
         importer: sass_glob_importer()
@@ -51,13 +52,13 @@ function css() {
 
 function js() {
   update_project_vars();
-  return src(project.scripts.source, { sourcemaps: env.development })
-    .pipe(concat(project.scripts.filename))
-    .pipe(gulpif(env.production, uglify()))
-    .pipe(dest(`${ project.source_folder }/assets`, { sourcemaps: env.development }))
+  return src(project.scripts.entry)
+    .pipe(webpack( require('./webpack.config.js') ))
+    .pipe(rename(project.scripts.filename))
+    .pipe(dest(`${ project.source_folder }/assets`));
 }
 
-function init_browserSync() {
+function init_browserSync(done) {
   browserSync.init({
     proxy:  `https://${ process.env.SHOPIFY_SHOP }`,
     files: project.ThemeKit_idle_file,
@@ -70,10 +71,10 @@ function init_browserSync() {
       }
     },
     open: false,
-    reloadOnRestart: true,
     notify: false,
     ghostMode: true,
   });
+  done();
 }
 
 function create_zip_backup() {
@@ -110,4 +111,4 @@ if (env.development){
   );
 }
 exports.css = (env.production ? css : watch(project.styles.to_watch, css));
-exports.js = (env.production ? js : watch(project.scripts.to_watch, js));
+exports.js = js; // production conditionals handled via webpack config
