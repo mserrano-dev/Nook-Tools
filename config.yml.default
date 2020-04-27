@@ -4,4 +4,4 @@ development:
   #store:    <!--  MAKE A .env FILE  -->
   #directory: src
   
-<!-- themekit will generate this file via devops.js -->
+<!-- ThemeKit (via gulp) will generate config.yml for us -->

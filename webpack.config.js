@@ -1,14 +1,11 @@
-const argv = require('yargs').argv;
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const globImporter = require('node-sass-glob-importer');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const autoprefixer = require('autoprefixer');
-//
-const env = {
-  production: (argv.env == 'production'),
-  development: (argv.env == 'development'),
-};
-const project = require('./project-settings');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin'); // typescript config file
+const globImporter = require('node-sass-glob-importer'); // sass glob imports
+const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // minify
+const autoprefixer = require('autoprefixer'); // config at package.json Browserslist
+const { 
+  env, // boolean flags for production, development
+  project // variable filenames, paths, etc
+} = require('./project-settings');
 
 module.exports = {
   mode: (env.development ? 'development' : 'production'),
