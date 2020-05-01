@@ -12,11 +12,11 @@ function init_env_config() {
 function init_themekit_config() {
   // setup ThemeKit auth flags
   let _return = {};
-  if(valid_env_variables("SHOPIFY_PASSWD", "SHOPIFY_THEMEID", "SHOPIFY_SHOP") === true) {
+  if(valid_env_variables("SHOPIFY_PASSWD", "SHOPIFY_SHOP", "SHOPIFY_PREVIEW_THEMEID") === true) {
     _return = {
       password: process.env.SHOPIFY_PASSWD,
-      themeid: process.env.SHOPIFY_THEMEID,
       store: process.env.SHOPIFY_SHOP,
+      themeid: process.env.SHOPIFY_PREVIEW_THEMEID,
       dir: 'src',
     };
   }

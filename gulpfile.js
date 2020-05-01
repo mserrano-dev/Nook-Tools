@@ -44,9 +44,10 @@ async function do_themekit_deploy(done) {
 }
 
 function init_browserSync(done) {
-  if(valid_env_variables("SHOPIFY_SHOP") === true) {
+  if(valid_env_variables("SHOPIFY_PREVIEW_LINK", "SHOPIFY_PREVIEW_THEMEID") === true) {
     browserSync.init({
-      proxy:  `https://${ process.env.SHOPIFY_SHOP }`,
+      port: 8080,
+      proxy:  process.env.SHOPIFY_PREVIEW_LINK,
       files: project.ThemeKit_idle_file,
       snippetOptions: {
         rule: {
