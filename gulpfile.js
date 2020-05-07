@@ -1,4 +1,4 @@
-require('dotenv').config() // load .env file into process.env
+require('dotenv').config(); // load .env file into process.env
 const { src, dest, series, parallel } = require('gulp');
 const themeKit = require('@shopify/themekit'); // execute ThemeKit commands
 const webpack = require('webpack-stream'); // gulp task runner with webpack bundler
@@ -16,7 +16,7 @@ const {
 // --- Gulp4 Tasks --- //
 function do_webpack() {
   return src([project.scripts.entry, project.styles.entry])
-    .pipe(webpack( require('./webpack.config.js') ))
+    .pipe(webpack(require('./webpack.config.js')))
     .pipe(dest(`src/assets`));
 }
 
@@ -35,19 +35,19 @@ async function do_themekit_watch(done) {
 async function do_themekit_deploy(done) {
   await themeKit.command('deploy', Object.assign({}, themekit_config, {
     files: [
-      `assets/${ project.scripts.filename }`,
-      `assets/${ project.styles.filename }`,
-      `assets/${ project.zip_filename }`,
+      `assets/${project.scripts.filename}`,
+      `assets/${project.styles.filename}`,
+      `assets/${project.zip_filename}`,
     ]
   }));
   done();
 }
 
 function init_browserSync(done) {
-  if(valid_env_variables("SHOPIFY_PREVIEW_LINK", "SHOPIFY_PREVIEW_THEMEID") === true) {
+  if (valid_env_variables("SHOPIFY_PREVIEW_LINK", "SHOPIFY_PREVIEW_THEMEID") === true) {
     browserSync.init({
       port: 8080,
-      proxy:  process.env.SHOPIFY_PREVIEW_LINK,
+      proxy: process.env.SHOPIFY_PREVIEW_LINK,
       files: project.ThemeKit_idle_file,
       snippetOptions: {
         rule: {
@@ -66,13 +66,13 @@ function init_browserSync(done) {
 }
 
 function create_zip_backup() {
-  let list_ignore = [`src/assets/${ project.zip_filename }`];
+  let list_ignore = [`src/assets/${project.zip_filename}`];
   const gitignore = fs.readFileSync("./.gitignore", "utf8");
   // dont zip any files that this repo would ignore
   for (var filename of gitignore.split(/\r?\n/)) {
-    if(filename) {
-      list_ignore.push(`${ filename }`);
-      list_ignore.push(`${ filename }/**/*`);
+    if (filename) {
+      list_ignore.push(`${filename}`);
+      list_ignore.push(`${filename}/**/*`);
     }
   }
   // explicitly define which hidden files to include in the zip file
@@ -81,9 +81,9 @@ function create_zip_backup() {
     '.env.default',
     '.gitignore',
   ];
-  return src(contents, {ignore: list_ignore})
+  return src(contents, { ignore: list_ignore })
     .pipe(archiver(project.zip_filename))
-    .pipe(dest(`src/assets`))
+    .pipe(dest(`src/assets`));
 }
 
 // --- Main --- //
